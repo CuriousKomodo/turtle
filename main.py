@@ -17,3 +17,4 @@ def get_stock_table(request: Request):
     stock_table = get_stock_table_with_formatting()
     return templates.TemplateResponse('stocks.html',
                                       context={'request': request,'stock_table': stock_table})
+
