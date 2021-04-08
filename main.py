@@ -7,6 +7,7 @@ from stocks_info import get_stock_table_with_formatting
 app = FastAPI()
 templates = Jinja2Templates(directory="templates/")
 current_dir = os.path.dirname(os.path.abspath(__file__))
+columns_for_index = []
 
 @app.get('/')
 def welcome():
@@ -16,5 +17,8 @@ def welcome():
 def get_stock_table(request: Request):
     stock_table = get_stock_table_with_formatting()
     return templates.TemplateResponse('stocks.html',
-                                      context={'request': request,'stock_table': stock_table})
+                                      context={'request': request,
+                                               'stock_table': stock_table,
+                                               'columns_for_index': columns_for_index,
+                                               })
 

@@ -11,50 +11,131 @@ import pandas as pd
 import yfinance as yf
 
 
-"""# Get the list of stocks in the spreadsheet"""
 
+
+"""# Get the list of stocks in the spreadsheet"""
+list_of_metrics_to_display = []
 list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO", "CODX",
                            "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
                            "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
                            "MX"]  # INSERT STOCKS THAT YOU ARE INTERESTED HERE
 
+def obtain_benchmark():
+    data = {}
+    return data
 
+
+def get_gross_profit_data(ticker_data):
+    gross_profit = None
+    gross_profit_prev = None
+    try:
+        gross_profit = ticker_data.get_financials().loc['Gross Profit'][0]
+    except IndexError:
+        print('No current gross profit data')
+
+    try:
+        gross_profit_prev = ticker_data.get_financials().loc['Gross Profit'][1]
+    except IndexError:
+        print('No previous gross profit data')
+
+    gross_profit_colour = 'N/A'
+    if all([gross_profit, gross_profit_prev]):
+        gross_profit_colour = 'green' if gross_profit > gross_profit_prev else 'red'
+
+    return gross_profit, gross_profit_prev, gross_profit_colour
+
+
+def get_other_fundamental_data(ticker_data, gross_profit):
+    management = 0
+    r_and_d_as_pct_to_gross_profit = 0
+
+    # TODO: check with the year too?
+    revenue = ticker_data.get_financials().loc['Total Revenue'][0]
+    expense = ticker_data.get_financials().loc['Total Operating Expenses'][0]
+    r_and_d = ticker_data.get_financials().loc['Research Development'][0]
+
+    # Management
+    if all([revenue, expense]):
+        management = (revenue - expense)*100/expense
+
+    # R&D ratio
+    if all([gross_profit, r_and_d]):
+        r_and_d_as_pct_to_gross_profit = r_and_d*100/gross_profit
+
+    revenue = revenue if revenue else 0
+    expense = expense if expense else 0
+    r_and_d = r_and_d if r_and_d else 0
+    return revenue, expense, r_and_d, management, r_and_d_as_pct_to_gross_profit
 
 def get_all_stock_info(stock: str):
-    thestock = yf.Ticker(stock)
-    market_cap = 0
-    gross_profit = 0
-    price = 0
-    low = 0
-    high = 0
-    vol = 0
-    market_vol = 0
-    profit = 0
-    action = 0
-    ave_vol_10_days = 0
+    ticker_data = yf.Ticker(stock)
+    data = {}
+
     try:
-        market_cap = thestock.info['marketCap']
-        gross_profit = thestock.get_financials().loc['Gross Profit'][0]
-        # gross_profit_prev = thestock.get_financials().loc['Gross Profit'][1]
-        # gross_profit_colour = 'green' if gross_profit>gross_profit_prev else 'red'
+        # Fundamental financial data
+        market_cap = ticker_data.info['marketCap']
+        gross_profit, gross_profit_prev, gross_profit_colour = get_gross_profit_data(ticker_data)
+        revenue, expense, r_and_d, management, r_and_d_as_pct_to_gross_profit = get_other_fundamental_data(ticker_data, gross_profit)
 
-        vol = thestock.info['averageVolume']
-        ave_vol_10_days = thestock.info['averageVolume10days']
-        price = thestock.history(period='1d')['Close'][0]
-        low = thestock.info['fiftyTwoWeekLow']
-        high = thestock.info['fiftyTwoWeekHigh']
-        # price = 'green' if price>prev_price else 'red'
+        # Technical data
+        ave_vol_10_days = ticker_data.info['averageVolume10days']
 
-        market_vol = vol * price
+        # historical data
+        his = ticker_data.history(period="1wk", interval="5m")
+        current_vol = his.iloc[-1]['Volume']
+        current_price = his.iloc[-1]['Close']
+        prev_vol = his.iloc[-2]['Volume']
+        prev_price = his.iloc[-2]['Close']
+
+        price_colour = 'N/A'
+        volume_colour = 'N/A'
+        if all([current_price, prev_price]):
+            price_colour = 'green' if current_price > prev_price else 'red'
+        if all([current_vol, prev_vol]):
+            volume_colour = 'green' if current_vol > prev_vol else 'red'
+
+        profit = 0
+        market_size = current_vol * current_price
+
         if gross_profit > 0:
-            profit = 100 - (vol * price * 100 / gross_profit)
-        action = 'Buy' if gross_profit > market_vol else 'Sell'
+            profit = 100 * (1-(market_size/gross_profit))
+
+        # Volatility
+        volatility = (current_vol - prev_vol)*100/prev_vol
+
+        # Stability
+        stability = (current_vol - ave_vol_10_days)*100/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
+
+        # Growth
+        growth = (market_cap - market_size)*100/market_size
+
+        data = {'Symbol': stock,
+                'Gross Profit': gross_profit,
+                'Prev Gross Profit': np.round(prev_price, 2),
+                'Market Cap': float(np.round(market_cap, -3)),
+                'Market Size': np.round(market_size, -3),
+                'Profit': int(profit),
+                'Price': np.round(current_price, 2),
+                'Prev Price': np.round(prev_price, 2),
+                'Volume': float(current_vol),
+                'Prev Volume': float(prev_vol),
+                'Average Volume 10 days': float(np.round(ave_vol_10_days, 2)),
+                'Total Revenue': float(np.round(revenue, 2)),
+                'Total Expense': float(np.round(expense, 2)),
+                'Volatility': float(np.round(volatility)),
+                'Stability': float(np.round(stability)),
+                'Growth': float(np.round(growth)),
+                'Management': float(np.round(management)),
+                'R&D as % to Gross Profit': float(np.round(r_and_d_as_pct_to_gross_profit)),
+                'Volume Color': volume_colour,
+                'Price Color': price_colour,
+                'Gross Profit Color': gross_profit_colour,
+                }
 
     except Exception:
         print('Cannot retrieve data for : {}'.format(stock))
-        pass
 
-    return market_cap, gross_profit, price, low, high, vol, market_vol, profit, action, ave_vol_10_days
+    return data
 
 
 def display_full_table_faster(list_of_existing_stocks):
@@ -68,49 +149,38 @@ def display_full_table_faster(list_of_existing_stocks):
     # Example data to loop and append to a dataframe
     for i, stock in enumerate(list_of_existing_stocks):
         print('processing stock:', stock)
-        # get history
-        market_cap, gross_profit, price, low, high, vol, market_vol, profit, action, ave_vol_10_days = get_all_stock_info(
-            stock)
-        volume_stability = 'stable' if vol > ave_vol_10_days else 'unstable'
-
-        try:
-            data = {'Symbol': stock,
-                    'Gross Profit': gross_profit,
-                    'Market Cap': float(np.round(market_cap, -3)),
-                    'Market size': np.round(market_vol, -3),
-                    'Profit': int(profit),
-                    'Action': action,
-                    'Low': np.round(low, 2),
-                    'Price': np.round(price, 2),
-                    'High': np.round(high, 2),
-                    'Share Volume': float(vol),
-                    'Average Volume 10 days': float(np.round(ave_vol_10_days, 2)),
-                    'Volatility': volume_stability
-                    }
-            d[i] = data
-        except Exception:
-            print('Data issue: {}'.format(stock))
+        #try:
+        d[i] = get_all_stock_info(stock)
+        # except Exception:
+        #     print('Data issue: {}'.format(stock))
 
     df = pd.DataFrame.from_dict(d, "index")
     return df
 
 
-def get_stock_table_with_formatting(stock_list=list_of_existing_stocks[:3]):
+def get_stock_table_with_formatting(stock_list=list_of_existing_stocks[:2]):
     stock_table = display_full_table_faster(stock_list)
-    stock_table[['Gross Profit', 'Market Cap', 'Market size']].style.format('${:,.0f}')
-    stock_table[['Low', 'Price', 'High']].style.format('${:,.2f}')
-    stock_table[['Share Volume', 'Average Volume 10 days']].style.format('{:,.0f}')
+    currency_columns = ['Gross Profit', 'Prev Gross Profit', 'Market Cap', 'Market Size',
+                        'Total Revenue', 'Total Expense']
+    price_columns = ['Price', 'Prev Price']
+    int_columns = ['Volume', 'Average Volume 10 days', 'Prev Volume']
+    percentage_columns = ['Stability', 'Volatility', 'Growth', 'Management', 'R&D as % to Gross Profit']
 
-    column_names_currency = ['Market Cap', 'Gross Profit', 'Price', 'Low', 'High', 'Market size']
-    for col_name in column_names_currency:
+    stock_table[percentage_columns].style.format('{:,.2f}%')
+    stock_table[int_columns].style.format('{:,.0f}')
+
+    for col_name in currency_columns:
+        stock_table[col_name] = stock_table[col_name].map('${:,.0f}'.format)
+
+    for col_name in price_columns:
         stock_table[col_name] = stock_table[col_name].map('${:,.2f}'.format)
 
-    #stock_table.head()
+    print(stock_table.head())
     return stock_table
 
 
 """## Display Table - might take 5min to generate all the stock information"""
 if __name__ == "__main__":
-    get_stock_table_with_formatting(list_of_existing_stocks)
+    get_stock_table_with_formatting(list_of_existing_stocks[:2])
 
 

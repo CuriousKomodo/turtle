@@ -1,0 +1,87 @@
+body {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1, h2 {
+    margin: 0;
+    text-align: center;
+    color: #183ba0;
+}
+
+h2 {
+    font-size: 14px;
+}
+
+form {
+    display: inline-block;
+    margin-left: 25px;
+    margin-right: 25px;
+    text-align: center;
+}
+
+.center {
+    margin: auto;
+    width: 45%;
+    border: 2px solid #4683a8;
+    padding: 10px;
+    color: black;
+}
+
+.center thead {
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 1px solid #85c2e7;
+    border-left: 1px solid #85c2e7;
+    border-collapse: collapse;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 40px;
+    font-size: 1.2em;
+    background-color: #ffffff;
+    color: black;
+}
+
+.center td {
+    color: black;
+    border-top: 1.5px solid #85c2e7;
+    border-right: 1.5px solid #85c2e7;
+    border-bottom: 1.5px solid #85c2e7;
+    border-left: 1.5px solid #85c2e7;
+    background-color: #ffffff;
+}
+
+.center th {
+    border: black;
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 1px solid #efe8e8;
+    border-collapse: collapse;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 40px;
+    font-size: 0.9em;
+    background-color: white;
+}
+
+
+.center tr:hover {
+    background-color: #99dbff;
+}
+
+ul {
+    list-style-type: "⚠️";
+}
+
+.green_class{
+    color: green;
+}
+.red_class{
+    color: red;
+}
+.norm_class{
+    color: black;
+}
+

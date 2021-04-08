@@ -1,4 +1,6 @@
 <!doctype html>
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('static', filename='stock_table.css') }}">
 
 <head>
     <meta charset="UTF-8">
@@ -18,33 +20,22 @@
 <thead>
 <tr style="text-align: right;">
     <th>Symbol</th>
-    <th>Action</th>
-    <th>Profit</th>
-<th>Market Cap</th>
-<th>Gross Profit</th>
-<th>Market size</th>
-<th>Price</th>
-<th>Low</th>
-<th>High</th>
-<th>Share Volume</th>
-<th>Average Volume 10 days</th>
-<th>Volatility</th>
+    {% for column_name in columns_for_index %}
+        <th>{{column_name}}</th>
+    {% endfor %}
 </thead>>
 
 {% for index, row in stock_table.iterrows() %}
 <tr>
     <td style="color:black">{{ row['Symbol']}}</td>
-    <td style="color:black">{{ row['Action']}}</td>
-    <td>{{ row['Profit']}}</td>
-    <td>{{ row['Market Cap']}}</td>
-    <td>{{ row['Gross Profit']}}</td>
-    <td>{{ row['Market size']}}</td>
-    <td>{{ row['Price']}}</td>
-    <td>{{ row['Low']}}</td>
-    <td>{{ row['High']}}</td>
-    <td>{{ row['Share Volume']}}</td>
-    <td>{{ row['Average Volume 10 days']}}</td>
-    <td>{{ row['Volatility']}}</td>
+
+    {% for column_name in columns_for_index %}
+        {% if column_name not in ['Volume', 'Price', 'Gross Profit'] %}
+            <td class="norm_class">{{ row[column_name]}}</td>
+        {% else %}
+            <td class="{{row['{} Color'.format(column_name)]}}">{{ row[column_name]}}</td>
+        {% endif %}
+    {% endfor %}
 </tr>
 {% endfor %}
 </table>
