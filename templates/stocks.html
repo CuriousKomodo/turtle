@@ -1,6 +1,6 @@
 <!doctype html>
-{#<link rel="stylesheet" type="text/css"#}
-{#      href="{{ url_for('static', filename='stock_table.css') }}">#}
+<link rel="stylesheet" type="text/css"
+      href="{{ 'static/stock_table.css' }}">
 
 <head>
     <meta charset="UTF-8">
@@ -9,13 +9,6 @@
 <body>
 
 <table class="center">
-<!--    <thead>-->
-<!--    <tr style="text-align: right;">-->
-<!--        <th>Session ID</th>-->
-<!--        <th>Pass?</th>-->
-<!--        <th>Detail</th>-->
-<!--    </tr>-->
-<!--    </thead>-->
 
 <thead>
 <tr style="text-align: right;">
@@ -23,7 +16,7 @@
     {% for column_name in columns_for_index %}
         <th>{{column_name}}</th>
     {% endfor %}
-</thead>>
+</thead>
 
 {% for index, row in stock_table.iterrows() %}
 <tr>
@@ -33,7 +26,7 @@
         {% if column_name not in ['Volume', 'Price', 'Gross Profit'] %}
             <td class="norm_class">{{ row[column_name]}}</td>
         {% else %}
-            <td class="{{row['{} Color'.format(column_name)]}}">{{ row[column_name]}}</td>
+            <td class="{{row['{} Color'.format(column_name)].lower()}}_class">{{ row[column_name]}}</td>
         {% endif %}
     {% endfor %}
 </tr>

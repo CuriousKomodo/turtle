@@ -75,13 +75,13 @@ ul {
     list-style-type: "⚠️";
 }
 
-.green_class{
+td.green_class{
     color: green;
 }
-.red_class{
+td.red_class{
     color: red;
 }
-.norm_class{
+td.norm_class{
     color: black;
 }
 

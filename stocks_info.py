@@ -94,26 +94,26 @@ def get_all_stock_info(stock: str):
             volume_colour = 'green' if current_vol > prev_vol else 'red'
 
         profit = 0
-        market_size = current_vol * current_price
+        market_size = ave_vol_24_hr * current_price
 
         if gross_profit:
-            profit = 100 * (gross_profit/market_size - 1)
+            profit = gross_profit/market_size - 1
 
         # Volatility
-        volatility = (current_vol - prev_vol)*100/prev_vol
+        volatility = (current_vol - prev_vol)/prev_vol
 
         # Stability
-        stability = (ave_vol_24_hr - ave_vol_10_days)*100/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
+        stability = (ave_vol_24_hr - ave_vol_10_days)/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
 
         # Growth
-        growth = (market_cap - market_size)*100/market_size
+        growth = (market_cap - market_size)/market_size  # TODO: market size based 5min.
 
         data = {'Symbol': stock,
                 'Gross Profit': gross_profit,
                 'Prev Gross Profit': np.round(gross_profit_prev, 2),
                 'Market Cap': float(np.round(market_cap, -3)),
                 'Market Size': np.round(market_size, -3),
-                'Profit': int(profit),
+                'Profitability': int(profit),
                 'Price': np.round(current_price, 2),
                 'Prev Price': np.round(prev_price, 2),
                 'Volume': float(current_vol),
@@ -126,7 +126,7 @@ def get_all_stock_info(stock: str):
                 'Stability': float(np.round(stability)),
                 'Growth': float(np.round(growth)),
                 'Management': float(np.round(management)),
-                'R&D as % to Gross Profit': float(np.round(r_and_d_as_pct_to_gross_profit)),
+                'R&D/Gross Profit': float(np.round(r_and_d_as_pct_to_gross_profit)),
                 'Volume Color': volume_colour,
                 'Price Color': price_colour,
                 'Gross Profit Color': gross_profit_colour,
@@ -158,13 +158,13 @@ def display_full_table_faster(list_of_existing_stocks):
     return df
 
 
-def get_stock_table_with_formatting(stock_list=list_of_existing_stocks[:2]):
+def get_stock_table_with_formatting(stock_list=list_of_existing_stocks):
     stock_table = display_full_table_faster(stock_list)
     currency_columns = ['Gross Profit', 'Prev Gross Profit', 'Market Cap', 'Market Size',
                         'Total Revenue', 'Total Expense']
     price_columns = ['Price', 'Prev Price']
     int_columns = ['Volume', 'Average Volume 10 days', 'Prev Volume']
-    percentage_columns = ['Stability', 'Volatility', 'Growth', 'Management', 'R&D as % to Gross Profit']
+    percentage_columns = ['Stability', 'Profitability', 'Volatility', 'Growth', 'Management', 'R&D/Gross Profit']
 
     stock_table[percentage_columns].style.format('{:,.2f}%')
     stock_table[int_columns].style.format('{:,.0f}')
@@ -182,5 +182,3 @@ def get_stock_table_with_formatting(stock_list=list_of_existing_stocks[:2]):
 """## Display Table - might take 5min to generate all the stock information"""
 if __name__ == "__main__":
     get_stock_table_with_formatting(list_of_existing_stocks[:2])
-
-
