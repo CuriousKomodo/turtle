@@ -93,20 +93,26 @@ def get_all_stock_info(stock: str):
         if all([current_vol, prev_vol]):
             volume_colour = 'green' if current_vol > prev_vol else 'red'
 
-        profit = 0
         market_size = ave_vol_24_hr * current_price
 
+        profit = None
         if gross_profit:
             profit = gross_profit/market_size - 1
 
         # Volatility
-        volatility = (current_vol - prev_vol)/prev_vol
+        volatility = None
+        if prev_vol>0:
+            volatility = (current_vol - prev_vol)/prev_vol
 
         # Stability
-        stability = (ave_vol_24_hr - ave_vol_10_days)/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
+        stability = None
+        if ave_vol_10_days:
+            stability = (ave_vol_24_hr - ave_vol_10_days)/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
 
         # Growth
-        growth = (market_cap - market_size)/market_size  # TODO: market size based 5min.
+        growth = None
+        if market_size:
+            growth = (market_cap - market_size)/market_size  # TODO: market size based 5min.
 
         data = {'Symbol': stock,
                 'Gross Profit': gross_profit,
