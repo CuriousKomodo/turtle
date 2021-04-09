@@ -65,6 +65,7 @@ def get_other_fundamental_data(ticker_data, gross_profit):
     r_and_d = r_and_d if r_and_d else 0
     return revenue, expense, r_and_d, management, r_and_d_as_pct_to_gross_profit
 
+
 def get_all_stock_info(stock: str):
     ticker_data = yf.Ticker(stock)
     data = {}
@@ -144,7 +145,7 @@ def get_all_stock_info(stock: str):
     return data
 
 
-def display_full_table_faster(list_of_existing_stocks):
+def get_all_stocks_table(list_of_existing_stocks):
     pd.set_option('display.float_format',
                   lambda x: '%.3f' % x)  # to display without scientific format
     pd.options.display.float_format = '{:,}'.format
@@ -165,7 +166,7 @@ def display_full_table_faster(list_of_existing_stocks):
 
 
 def get_stock_table_with_formatting(stock_list=list_of_existing_stocks):
-    stock_table = display_full_table_faster(stock_list)
+    stock_table = get_all_stocks_table(stock_list)
     currency_columns = ['Gross Profit', 'Prev Gross Profit', 'Market Cap', 'Market Size',
                         'Total Revenue', 'Total Expense']
     price_columns = ['Price', 'Prev Price']
