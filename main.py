@@ -25,7 +25,7 @@ def welcome():
 
 
 @app.get("/stocks")  # TODO: This might be asynchronous in the future.
-def get_stock_table(request: Request):
+async def get_stock_table(request: Request):
     list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO",
                                "CODX",
                                "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
