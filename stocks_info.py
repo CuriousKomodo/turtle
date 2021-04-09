@@ -11,8 +11,6 @@ import pandas as pd
 import yfinance as yf
 
 
-
-
 """# Get the list of stocks in the spreadsheet"""
 list_of_metrics_to_display = []
 list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO", "CODX",
@@ -79,6 +77,7 @@ def get_all_stock_info(stock: str):
 
         # Technical data
         ave_vol_10_days = ticker_data.info['averageVolume10days']
+        ave_vol_24_hr = ticker_data.info['averageVolume']
 
         # historical data
         his = ticker_data.history(period="1wk", interval="5m")
@@ -97,21 +96,21 @@ def get_all_stock_info(stock: str):
         profit = 0
         market_size = current_vol * current_price
 
-        if gross_profit > 0:
-            profit = 100 * (1-(market_size/gross_profit))
+        if gross_profit:
+            profit = 100 * (gross_profit/market_size - 1)
 
         # Volatility
         volatility = (current_vol - prev_vol)*100/prev_vol
 
         # Stability
-        stability = (current_vol - ave_vol_10_days)*100/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
+        stability = (ave_vol_24_hr - ave_vol_10_days)*100/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
 
         # Growth
         growth = (market_cap - market_size)*100/market_size
 
         data = {'Symbol': stock,
                 'Gross Profit': gross_profit,
-                'Prev Gross Profit': np.round(prev_price, 2),
+                'Prev Gross Profit': np.round(gross_profit_prev, 2),
                 'Market Cap': float(np.round(market_cap, -3)),
                 'Market Size': np.round(market_size, -3),
                 'Profit': int(profit),
@@ -119,6 +118,7 @@ def get_all_stock_info(stock: str):
                 'Prev Price': np.round(prev_price, 2),
                 'Volume': float(current_vol),
                 'Prev Volume': float(prev_vol),
+                'Daily Average Volume': float(np.round(ave_vol_24_hr, 2)),
                 'Average Volume 10 days': float(np.round(ave_vol_10_days, 2)),
                 'Total Revenue': float(np.round(revenue, 2)),
                 'Total Expense': float(np.round(expense, 2)),
@@ -149,10 +149,10 @@ def display_full_table_faster(list_of_existing_stocks):
     # Example data to loop and append to a dataframe
     for i, stock in enumerate(list_of_existing_stocks):
         print('processing stock:', stock)
-        #try:
-        d[i] = get_all_stock_info(stock)
-        # except Exception:
-        #     print('Data issue: {}'.format(stock))
+        try:
+          d[i] = get_all_stock_info(stock)
+        except Exception:
+            print('Data issue: {}'.format(stock))
 
     df = pd.DataFrame.from_dict(d, "index")
     return df
@@ -175,7 +175,7 @@ def get_stock_table_with_formatting(stock_list=list_of_existing_stocks[:2]):
     for col_name in price_columns:
         stock_table[col_name] = stock_table[col_name].map('${:,.2f}'.format)
 
-    print(stock_table.head())
+    stock_table.replace([np.inf, -np.inf], 'N/A', inplace=True)
     return stock_table
 
 
