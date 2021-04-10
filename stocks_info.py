@@ -97,8 +97,9 @@ def get_all_stock_info(stock: str):
         market_size = ave_vol_24_hr * current_price
 
         profit = None
-        if gross_profit & (market_size>0):
-            profit = gross_profit/market_size - 1
+        if gross_profit:
+            if market_size>0:
+                profit = gross_profit/market_size - 1
 
         # Volatility
         volatility = None

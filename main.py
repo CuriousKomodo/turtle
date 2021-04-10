@@ -37,7 +37,7 @@ columns_for_index = ['Gross Profit', 'Price', 'Volume', 'Profitability', 'Volati
 def welcome():
     return 'welcome turtle <3 '
 
-@app.get("/test")
+@app.get("/stocks")
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
@@ -54,7 +54,7 @@ async def test_endpoint(request: Request):
     futures = []
 
     for stock in list_of_existing_stocks:
-        futures.append(pool.submit(get_all_stock_info,stock),)
+        futures.append(pool.submit(get_all_stock_info, stock),)
 
     results = []
     for fut in futures:
@@ -74,20 +74,17 @@ async def test_endpoint(request: Request):
                                                })
 
 
-# @app.get("/stocks")  # TODO: This might be asynchronous in the future.
-# async def get_stock_table(request: Request):
-#     list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO",
-#                                "CODX",
-#                                "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
-#                                "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
-#                                "MX"]
-#
-#     stock_table = format_stock_table(list_of_existing_stocks)
-#     return templates.TemplateResponse('stocks.html',
-#                                       context={'request': request,
-#                                                'stock_table': stock_table,
-#                                                'columns_for_index': columns_for_index,
-#                                                })
+@app.get("/test") 
+async def get_stock_table(request: Request):
+    results = [get_all_stock_info('ANPC')]
+    d = {i: result for i, result in enumerate(results)}
+    stock_table = get_all_stocks_table_from_list(d)
+    stock_table = format_stock_table(stock_table)
+    return templates.TemplateResponse('stocks.html',
+                                      context={'request': request,
+                                               'stock_table': stock_table,
+                                               'columns_for_index': columns_for_index,
+                                               })
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
