@@ -95,7 +95,7 @@ async def test_endpoint(request: Request):
     # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
     # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
 
-    pool = Pool(processes=5)
+    pool = Pool(processes=10)
     results = [pool.apply(get_all_stock_info, args=(x,)) for x in list_of_existing_stocks]
 
     d = {i: result for i, result in enumerate(results)}
