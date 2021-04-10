@@ -7,7 +7,7 @@ from typing import Dict
 from uuid import UUID, uuid4
 import pandas as pd
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from starlette.staticfiles import StaticFiles
@@ -37,12 +37,15 @@ columns_for_index = ['Gross Profit', 'Price', 'Volume', 'Profitability', 'Volati
 def welcome():
     return 'welcome turtle <3 '
 
+@app.post("/login/")
+async def login(username: str = Form(...)):
+    return {"username": username}
+
 @app.get("/stocks")
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
-    list_of_existing_stocks = ["3SFB", "MMM", "3SQE"]
-                               #"FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF"]
+    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF"]
                                # "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
                                # "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA"]
                                # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
