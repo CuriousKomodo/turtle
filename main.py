@@ -38,8 +38,8 @@ columns_for_index = ['Gross Profit', 'Price', 'Volume', 'Profitability', 'Volati
 def welcome():
     return 'welcome turtle <3 '
 
-@app.post("/login/")
-async def login(username: str = Form(...)):
+@app.post("/login")
+def login(username: str = Form(...)):
     url = app.url_path_for("stocks")
     response = RedirectResponse(url=url)
     return response
@@ -69,6 +69,34 @@ async def test_endpoint(request: Request):
 
     # terminate the entire pool
     pool.shutdown(wait=True)
+
+    d = {i: result for i, result in enumerate(results)}
+    stock_table = get_all_stocks_table_from_list(d)
+    stock_table = format_stock_table(stock_table)
+
+    return templates.TemplateResponse('stocks.html',
+                                      context={'request': request,
+                                               'stock_table': stock_table,
+                                               'columns_for_index': columns_for_index,
+                                               })
+
+
+@app.get("/stocks2")
+async def test_endpoint(request: Request):
+    print(f"main process: {os.getpid()}")
+
+    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
+                               "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
+                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ",
+                               "GMDA"]
+    # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
+    # "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
+    # "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
+    # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
+    # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
+
+    pool = Pool(processes=5)
+    results = [pool.apply(get_all_stock_info, args=(x,)) for x in list_of_existing_stocks]
 
     d = {i: result for i, result in enumerate(results)}
     stock_table = get_all_stocks_table_from_list(d)
