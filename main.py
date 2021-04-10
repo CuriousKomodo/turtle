@@ -1,18 +1,13 @@
 import os
-import time
-import requests
-from concurrent.futures.process import ProcessPoolExecutor
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict
 from uuid import UUID, uuid4
-import pandas as pd
 import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
-from jinja2 import Template
 from pydantic import BaseModel, Field
-from starlette.responses import RedirectResponse, PlainTextResponse
+from starlette.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 from starlette.status import HTTP_302_FOUND
 
@@ -46,7 +41,7 @@ def login(username: str = Form(...)):
     return response
 
 
-@app.get('/stocks2/{list_of_stocks_str}')
+@app.get('/{list_of_stocks_str}')
 async def get_stocks_table(request: Request, list_of_stocks_str: str):
     print(f"main process: {os.getpid()}")
     print(list_of_stocks_str)
