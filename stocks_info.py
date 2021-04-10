@@ -143,6 +143,7 @@ def get_all_stock_info(stock: str):
     except Exception:
         print('Cannot retrieve data for : {}'.format(stock))
 
+    print('Got stock data {}'.format(stock))
     return data
 
 
