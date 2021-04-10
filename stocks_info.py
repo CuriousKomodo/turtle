@@ -81,7 +81,7 @@ def get_all_stock_info(stock: str):
         ave_vol_24_hr = ticker_data.info['averageVolume']
 
         # historical data
-        his = ticker_data.history(period="1wk", interval="5m")
+        his = ticker_data.history(period="5d", interval="5m")
         current_vol = his.iloc[-1]['Volume']
         current_price = his.iloc[-1]['Close']
         prev_vol = his.iloc[-2]['Volume']

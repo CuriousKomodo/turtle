@@ -46,6 +46,9 @@ async def test_endpoint(request: Request):
                                "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
                                "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
                                "MX"]
+    list_of_existing_stocks = ["WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",
+                               "WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",
+                               "WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",]
     pool = ProcessPoolExecutor(max_workers=5)
     futures = []
 
