@@ -39,10 +39,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 columns_for_index = ['Gross Profit', 'Price', 'Volume', 'Profitability', 'Volatility', 'Stability', 'Growth', 'Management', 'R&D/Gross Profit']
 
 
-@app.get('/')
-def welcome():
-    return 'welcome turtle <3 '
-
 @app.post("/login")
 def login(username: str = Form(...)):
     url = app.url_path_for("stocks")
@@ -81,7 +77,7 @@ async def get_stocks_table(request: Request, list_of_stocks_str: str):
         print('Error')
 
 
-@app.route('/choose-stocks', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 async def chose_stocks(request):
     form = await ListStocksForm.from_formdata(request)
 
