@@ -44,8 +44,8 @@ async def login(username: str = Form(...)):
     response = RedirectResponse(url=url)
     return response
 
-@app.post("/stocks")
-async def test_endpoint(request: Request, list_of_existing_stocks: Optional[List[str]] = []):
+@app.get("/stocks")
+async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
     list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF"]
