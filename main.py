@@ -41,15 +41,16 @@ def welcome():
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
-    list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO",
-                               "CODX",
-                               "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
-                               "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
-                               "MX"]
-    list_of_existing_stocks = ["WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",
-                               "WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",
-                               "WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ","WAFU", "EEIQ",]
-    pool = ProcessPoolExecutor(max_workers=5)
+    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
+                               "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
+                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA",
+                               "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
+                               "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
+                               "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
+                               "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
+                               "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
+    
+    pool = ProcessPoolExecutor(max_workers=10)
     futures = []
 
     for stock in list_of_existing_stocks:

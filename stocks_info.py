@@ -53,11 +53,11 @@ def get_other_fundamental_data(ticker_data, gross_profit):
     r_and_d = ticker_data.get_financials().loc['Research Development'][0]
 
     # Management
-    if all([revenue, expense]):
+    if all([revenue, expense]) & expense > 0:
         management = (revenue - expense)*100/expense
 
     # R&D ratio
-    if all([gross_profit, r_and_d]):
+    if all([gross_profit, r_and_d]) & gross_profit != 0:
         r_and_d_as_pct_to_gross_profit = r_and_d*100/gross_profit
 
     revenue = revenue if revenue else 0
@@ -97,22 +97,22 @@ def get_all_stock_info(stock: str):
         market_size = ave_vol_24_hr * current_price
 
         profit = None
-        if gross_profit:
+        if gross_profit & market_size>0:
             profit = gross_profit/market_size - 1
 
         # Volatility
         volatility = None
-        if prev_vol>0:
+        if prev_vol > 0:
             volatility = (current_vol - prev_vol)/prev_vol
 
         # Stability
         stability = None
-        if ave_vol_10_days:
+        if ave_vol_10_days > 0:
             stability = (ave_vol_24_hr - ave_vol_10_days)/ave_vol_10_days  # TODO: calcualte fotr 30 days insteds
 
         # Growth
         growth = None
-        if market_size:
+        if market_size > 0:
             growth = (market_cap - market_size)/market_size  # TODO: market size based 5min.
 
         data = {'Symbol': stock,
