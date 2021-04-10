@@ -43,12 +43,12 @@ async def test_endpoint(request: Request):
 
     list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
                                "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
-                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA",
-                               "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
-                               "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
-                               "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
-                               "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
-                               "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
+                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA"]
+                               # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
+                               # "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
+                               # "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
+                               # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
+                               # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
     
     pool = ProcessPoolExecutor(max_workers=10)
     futures = []
