@@ -145,28 +145,15 @@ def get_all_stock_info(stock: str):
     return data
 
 
-def get_all_stocks_table(list_of_existing_stocks):
+def get_all_stocks_table_from_list(list_of_stock_dict):
     pd.set_option('display.float_format',
                   lambda x: '%.3f' % x)  # to display without scientific format
     pd.options.display.float_format = '{:,}'.format
-
-    # the dictionary to pass to pandas dataframe
-    d = {}
-
-    # Example data to loop and append to a dataframe
-    for i, stock in enumerate(list_of_existing_stocks):
-        print('processing stock:', stock)
-        try:
-          d[i] = get_all_stock_info(stock)
-        except Exception:
-            print('Data issue: {}'.format(stock))
-
-    df = pd.DataFrame.from_dict(d, "index")
+    df = pd.DataFrame.from_dict(list_of_stock_dict, "index")
     return df
 
 
-def get_stock_table_with_formatting(stock_list=list_of_existing_stocks):
-    stock_table = get_all_stocks_table(stock_list)
+def format_stock_table(stock_table):
     currency_columns = ['Gross Profit', 'Prev Gross Profit', 'Market Cap', 'Market Size',
                         'Total Revenue', 'Total Expense']
     price_columns = ['Price', 'Prev Price']
@@ -188,4 +175,4 @@ def get_stock_table_with_formatting(stock_list=list_of_existing_stocks):
 
 """## Display Table - might take 5min to generate all the stock information"""
 if __name__ == "__main__":
-    get_stock_table_with_formatting(list_of_existing_stocks[:2])
+    format_stock_table(list_of_existing_stocks[:2])

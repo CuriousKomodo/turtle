@@ -5,14 +5,14 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Dict
 from uuid import UUID, uuid4
-
+import pandas as pd
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from starlette.staticfiles import StaticFiles
 
-from stocks_info import get_stock_table_with_formatting, get_all_stock_info
+from stocks_info import format_stock_table, get_all_stock_info, get_all_stocks_table_from_list
 
 
 class Job(BaseModel):
@@ -41,12 +41,16 @@ def welcome():
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
+    list_of_existing_stocks = ["WAFU", "EEIQ", "GME", "OCG", "KUKE", "XERIS", "BNGO", "MOMO",
+                               "CODX",
+                               "BOXL", "BLNK", "HOME", "MBII", "VNET", "APTO", "WGO", "SHIP", "KBH",
+                               "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
+                               "MX"]
     pool = ProcessPoolExecutor(max_workers=3)
-    futures = [
-        pool.submit(get_all_stock_info, 'WAFU'),
-        pool.submit(get_all_stock_info, 'MOMO'),
-        pool.submit(get_all_stock_info, 'MOMO'),
-    ]
+    futures = []
+
+    for stock in list_of_existing_stocks:
+        futures.append(pool.submit(get_all_stock_info,stock),)
 
     results = []
     for fut in futures:
@@ -54,10 +58,11 @@ async def test_endpoint(request: Request):
 
     # terminate the entire pool
     pool.shutdown(wait=True)
-    print(results)
-    import pandas as pd
+
     d = {i: result for i, result in enumerate(results)}
-    stock_table = pd.DataFrame.from_dict(d, "index")
+    stock_table = get_all_stocks_table_from_list(d)
+    stock_table = format_stock_table(stock_table)
+
     return templates.TemplateResponse('stocks.html',
                                       context={'request': request,
                                                'stock_table': stock_table,
@@ -73,7 +78,7 @@ async def test_endpoint(request: Request):
 #                                "NAVB", "APTX", "LIQT", "CLEU", "FEDU",
 #                                "MX"]
 #
-#     stock_table = get_stock_table_with_formatting(list_of_existing_stocks)
+#     stock_table = format_stock_table(list_of_existing_stocks)
 #     return templates.TemplateResponse('stocks.html',
 #                                       context={'request': request,
 #                                                'stock_table': stock_table,
