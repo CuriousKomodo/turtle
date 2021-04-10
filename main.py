@@ -3,13 +3,14 @@ import time
 from concurrent.futures.process import ProcessPoolExecutor
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, List
 from uuid import UUID, uuid4
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
+from starlette.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 
 from stocks_info import format_stock_table, get_all_stock_info, get_all_stocks_table_from_list
@@ -39,10 +40,12 @@ def welcome():
 
 @app.post("/login/")
 async def login(username: str = Form(...)):
-    return {"username": username}
+    url = app.url_path_for("stocks")
+    response = RedirectResponse(url=url)
+    return response
 
-@app.get("/stocks")
-async def test_endpoint(request: Request):
+@app.post("/stocks")
+async def test_endpoint(request: Request, list_of_existing_stocks: Optional[List[str]] = []):
     print(f"main process: {os.getpid()}")
 
     list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF"]
