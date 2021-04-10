@@ -41,7 +41,7 @@ def welcome():
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
-    pool = ProcessPoolExecutor(max_workers=None)
+    pool = ProcessPoolExecutor(max_workers=3)
     futures = [
         pool.submit(get_all_stock_info, 'WAFU'),
         pool.submit(get_all_stock_info, 'MOMO'),
