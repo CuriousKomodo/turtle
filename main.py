@@ -50,7 +50,7 @@ async def test_endpoint(request: Request):
                                # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
                                # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
     
-    pool = ProcessPoolExecutor(max_workers=10)
+    pool = ProcessPoolExecutor(max_workers=5)
     futures = []
 
     for stock in list_of_existing_stocks:
