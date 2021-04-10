@@ -1,5 +1,6 @@
 import os
 import time
+import requests
 from concurrent.futures.process import ProcessPoolExecutor
 from multiprocessing import Pool
 from pathlib import Path
@@ -9,11 +10,15 @@ import pandas as pd
 import uvicorn
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from jinja2 import Template
 from pydantic import BaseModel, Field
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, PlainTextResponse
 from starlette.staticfiles import StaticFiles
+from starlette.status import HTTP_302_FOUND
 
+from front_end.list_stocks_form import ListStocksForm
 from stocks_info import format_stock_table, get_all_stock_info, get_all_stocks_table_from_list
+from utils.convert_string_to_list import convert_string_to_integer_list
 
 
 class Job(BaseModel):
@@ -44,81 +49,51 @@ def login(username: str = Form(...)):
     response = RedirectResponse(url=url)
     return response
 
-@app.get("/stocks")
-async def test_endpoint(request: Request):
+
+@app.get('/stocks2/{list_of_stocks_str}')
+async def get_stocks_table(request: Request, list_of_stocks_str: str):
     print(f"main process: {os.getpid()}")
+    print(list_of_stocks_str)
+    list_of_stocks = []
+    try:
+        list_of_stocks = convert_string_to_integer_list(list_of_stocks_str)
+    except ValueError:
+        print('Error: Unable to convert the following to list: {}. Remember to separate your sessions with ",", or '
+                'use ":" to define range. Spacing does not matter.'.format(list_of_stocks_str))
+    print(list_of_stocks)
 
-    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
-                               "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
-                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA"]
-                               # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
-                               # "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
-                               # "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
-                               # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
-                               # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
-    
-    pool = ProcessPoolExecutor(max_workers=5)
-    futures = []
+    if list_of_stocks:
+        pool = Pool(processes=5)
+        results = pool.map(get_all_stock_info, list_of_stocks)
+        pool.close()
+        pool.join()
 
-    for stock in list_of_existing_stocks:
-        futures.append(pool.submit(get_all_stock_info, stock))
+        d = {i: result for i, result in enumerate(results)}
+        stock_table = get_all_stocks_table_from_list(d)
+        stock_table = format_stock_table(stock_table)
 
-    results = []
-    for fut in futures:
-        results.append(fut.result())
+        return templates.TemplateResponse('stocks.html',
+                                          context={'request': request,
+                                                   'stock_table': stock_table,
+                                                   'columns_for_index': columns_for_index,
+                                                   })
+    else:
+        print('Error')
 
-    # terminate the entire pool
-    pool.shutdown(wait=True)
 
-    d = {i: result for i, result in enumerate(results)}
-    stock_table = get_all_stocks_table_from_list(d)
-    stock_table = format_stock_table(stock_table)
+@app.route('/choose-stocks', methods=['GET', 'POST'])
+async def chose_stocks(request):
+    form = await ListStocksForm.from_formdata(request)
 
-    return templates.TemplateResponse('stocks.html',
+    # validate form
+    if await form.validate_on_submit():
+        list_of_stocks_str = form.stocks.data
+        stocks_data_url = app.url_path_for('get_stocks_table', **{"list_of_stocks_str": list_of_stocks_str})
+        return RedirectResponse(stocks_data_url, status_code=HTTP_302_FOUND)
+
+    return templates.TemplateResponse('choose_stocks.html',
                                       context={'request': request,
-                                               'stock_table': stock_table,
-                                               'columns_for_index': columns_for_index,
-                                               })
-
-
-@app.get("/stocks2")
-async def test_endpoint(request: Request):
-    print(f"main process: {os.getpid()}")
-
-    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
-                               "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
-                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ",
-                               "GMDA"]
-    # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
-    # "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
-    # "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
-    # "SIGL", "SLNG", "SNDEQ", "SNDL", "SSY", "TKAT", "TAL", "TCLRY", "TZPS",
-    # "SPC", "UPC", "VCNX", "VUSA", "VIOT", "VOW", "WPG", "WVE", "XELB"]
-
-    pool = Pool(processes=10)
-    results = [pool.apply(get_all_stock_info, args=(x,)) for x in list_of_existing_stocks]
-
-    d = {i: result for i, result in enumerate(results)}
-    stock_table = get_all_stocks_table_from_list(d)
-    stock_table = format_stock_table(stock_table)
-
-    return templates.TemplateResponse('stocks.html',
-                                      context={'request': request,
-                                               'stock_table': stock_table,
-                                               'columns_for_index': columns_for_index,
-                                               })
-
-
-@app.get("/test")
-async def get_stock_table(request: Request):
-    results = [get_all_stock_info('ANPC')]
-    d = {i: result for i, result in enumerate(results)}
-    stock_table = get_all_stocks_table_from_list(d)
-    stock_table = format_stock_table(stock_table)
-    return templates.TemplateResponse('stocks.html',
-                                      context={'request': request,
-                                               'stock_table': stock_table,
-                                               'columns_for_index': columns_for_index,
+                                               'form': form,
                                                })
 
 if __name__ == "__main__":

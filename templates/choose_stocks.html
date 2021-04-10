@@ -1,0 +1,16 @@
+<html>
+  <body>
+    <h1>Pick a list of stocks</h1>
+    <form method="post" novalidate>
+      <div>
+        {{ form.stocks(placeholder='["WAFU", "MOMO"]',
+                       autofocus='true',
+                       spellcheck='false') }}
+        {% if form.stocks.errors -%}
+        <span>{{ form.stocks.errors[0] }}</span>
+        {%- endif %}
+      </div>
+      <button type="submit">Check stocks</button>
+    </form>
+  </body>
+</html>
