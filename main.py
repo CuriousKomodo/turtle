@@ -41,9 +41,10 @@ def welcome():
 async def test_endpoint(request: Request):
     print(f"main process: {os.getpid()}")
 
-    list_of_existing_stocks = ["3SFB", "MMM", "3SQE", "FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF",
-                               "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
-                               "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA"]
+    list_of_existing_stocks = ["3SFB", "MMM", "3SQE"]
+                               #"FOLD", "ANPC", "EARS", "BTX", "BSQR", "CANF"]
+                               # "CAH", "PRTS", "CHUC", "CHEK", "CLIS", "CMGR", "CCAP", "DQ", "TACO",
+                               # "ENTX", "EVOK", "EVOL", "XELA", "XONE", "FAMI", "FEDU", "FREQ", "GMDA"]
                                # "GNMK", "GST", "GSX", "IAG", "IDRA", "IDOX", "ILMN", "IVST", "JRSS",
                                # "KNB", "KOSS", "LTRPB", "LIQT", "LIZI", "MOMO", "NLSP", "NVFY", "ODT",
                                # "PDD", "QIWI", "RCMT", "RHDGF", "RETO", "RLX", "RUBY", "SCPS", "SEN",
@@ -54,7 +55,7 @@ async def test_endpoint(request: Request):
     futures = []
 
     for stock in list_of_existing_stocks:
-        futures.append(pool.submit(get_all_stock_info, stock),)
+        futures.append(pool.submit(get_all_stock_info, stock))
 
     results = []
     for fut in futures:
@@ -74,7 +75,7 @@ async def test_endpoint(request: Request):
                                                })
 
 
-@app.get("/test") 
+@app.get("/test")
 async def get_stock_table(request: Request):
     results = [get_all_stock_info('ANPC')]
     d = {i: result for i, result in enumerate(results)}
